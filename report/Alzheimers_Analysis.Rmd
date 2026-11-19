@@ -1,0 +1,99 @@
+---
+title: "Alzheimer's Disease Memory Task Analysis"
+author: "Gerasimos Kapouranis"
+output:
+  html_document:
+    toc: true
+    theme: flatly
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## 1. Overview & Questions
+
+This analysis explores data from $N = 90$ participants performing two visual memory tasks: a **Colour-Shape Task** (`ColourShapeCorrect`) and a **Grey-Shape Task** (`GreyShapeCorrect`).
+
+We examine three clear questions:
+1. **Group Balance:** Is the dataset balanced between Alzheimer's patients and healthy controls, and across gender?
+2. **Task Performance:** Do healthy controls score higher than Alzheimer's patients in both memory tasks, and are those differences statistically significant?
+3. **Age Comparison:** Do the two groups differ in age, and how might age relate to the observed test scores?
+
+## 2. Data Inspection & Group Balance
+
+```{r load-data}
+data <- read.csv("../data/AlzheimersData.csv", stringsAsFactors = FALSE)
+data$Group <- ifelse(data$AlzheimersDisease, "Alzheimer's Disease", "Healthy Controls")
+
+dim(data)
+str(data)
+sum(is.na(data))
+```
+
+```{r balance}
+table(Diagnosis = data$Group)
+table(Diagnosis = data$Group, Gender = data$Gender)
+```
+
+- The dataset has **90 rows and 6 variables** with **no missing values**.
+- The sample is completely balanced by diagnosis: **45 Alzheimer's patients** and **45 healthy controls**.
+- Gender is also evenly distributed across both groups (25 females / 20 males in the Alzheimer's group vs. 23 females / 22 males in the healthy control group).
+
+## 3. Summary Statistics by Group
+
+```{r summaries}
+summary(data[, c("Age", "ColourShapeCorrect", "GreyShapeCorrect")])
+
+alz <- subset(data, AlzheimersDisease == TRUE)
+ctrl <- subset(data, AlzheimersDisease == FALSE)
+
+summary(alz[, c("Age", "ColourShapeCorrect", "GreyShapeCorrect")])
+summary(ctrl[, c("Age", "ColourShapeCorrect", "GreyShapeCorrect")])
+```
+
+Comparing the two group tables reveals two important patterns:
+1. **Lower memory scores in the Alzheimer's group:** Healthy controls average **60.1** correct trials on the Colour-Shape task (vs. **31.4** for Alzheimer's) and **80.2** on the Grey-Shape task (vs. **67.1** for Alzheimer's).
+2. **Age difference between groups:** The Alzheimer's group is **13.2 years older on average** (mean age **73.8 years**, range 55–93) than the healthy control group (mean age **60.6 years**, range 46–72).
+
+## 4. Two-Sample t-Tests
+
+To verify that the observed group differences are statistically significant rather than random sample variation, we run two-sample $t$-tests:
+
+```{r ttests}
+t.test(ctrl$ColourShapeCorrect, alz$ColourShapeCorrect)
+t.test(ctrl$GreyShapeCorrect, alz$GreyShapeCorrect)
+t.test(ctrl$Age, alz$Age)
+```
+
+All three differences are statistically significant ($p < 0.001$):
+- **Colour-Shape Task:** Healthy controls score **28.7 points higher** on average (95% CI: 25.2 to 32.2, $p < 0.001$).
+- **Grey-Shape Task:** Healthy controls score **13.1 points higher** on average (95% CI: 9.6 to 16.6, $p < 0.001$).
+- **Age:** Alzheimer's participants are **13.2 years older** on average (95% CI: 10.2 to 16.2, $p < 0.001$).
+
+## 5. Visualisations
+
+```{r plots, fig.width=10, fig.height=4.5}
+par(mfrow = c(1, 2))
+boxplot(ColourShapeCorrect ~ Group, data = data,
+        main = "Colour-Shape Memory Task", xlab = "", ylab = "Correct Trials")
+boxplot(GreyShapeCorrect ~ Group, data = data,
+        main = "Grey-Shape Memory Task", xlab = "", ylab = "Correct Trials")
+```
+
+```{r age-plots, fig.width=10, fig.height=4.5}
+par(mfrow = c(1, 2))
+boxplot(Age ~ Group, data = data,
+        main = "Participant Age by Group", xlab = "", ylab = "Age (Years)")
+
+cols <- ifelse(data$AlzheimersDisease, "red", "blue")
+plot(data$Age, data$ColourShapeCorrect, col = cols, pch = 19,
+     main = "Colour-Shape Score vs. Age", xlab = "Age (Years)", ylab = "Correct Trials")
+legend("topright", legend = c("Healthy Controls", "Alzheimer's Disease"), col = c("blue", "red"), pch = 19)
+```
+
+## 6. Conclusion & Limitations
+
+- Alzheimer's patients perform significantly worse on both visual memory tasks, with the largest drop appearing in the **Colour-Shape task** (where participants must remember both colour and shape together).
+- **Key Limitation (Age Difference):** Because the Alzheimer's group is significantly older on average (73.8 vs. 60.6 years) and memory performance tends to decrease with age, part of the difference in test scores may be influenced by age rather than Alzheimer's disease alone.

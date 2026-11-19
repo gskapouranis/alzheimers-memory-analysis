@@ -1,0 +1,15 @@
+# R session & history files
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+*.Rproj
+
+# Temporary rendered files
+report/*.html
+report/*.docx
+report/*.pdf
+
+# OS files
+.DS_Store
+Thumbs.db

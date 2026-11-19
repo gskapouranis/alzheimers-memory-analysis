@@ -1,0 +1,7 @@
+Variable,Group,Count,Mean,SD,Median,Min,Max
+Age,Healthy Controls,45,60.6,6.0,59.0,46,72
+Age,Alzheimer's Disease,45,73.8,8.1,74.0,55,93
+ColourShapeCorrect,Healthy Controls,45,60.1,8.0,61.0,40,75
+ColourShapeCorrect,Alzheimer's Disease,45,31.4,8.5,31.0,9,48
+GreyShapeCorrect,Healthy Controls,45,80.2,8.1,81.0,60,97
+GreyShapeCorrect,Alzheimer's Disease,45,67.1,8.5,67.0,50,87
